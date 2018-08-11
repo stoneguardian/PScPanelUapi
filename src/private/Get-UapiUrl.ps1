@@ -25,7 +25,7 @@ function Get-UapiUrl {
             Write-Error "Current connection has not been set, please do so with 'Set-Connection' before trying again" -ErrorAction Stop
         }
 
-        $url = "$baseUrl/$Action/$Module/$Function"
+        $url = "$baseUrl$Action/$Module/$Function"
 
         if($PSBoundParameters.ContainsKey('InputParameters'))
         {
