@@ -3,6 +3,7 @@ Properties {
     $SourceDirectory = "$PSScriptRoot\src"
     $OutputDirectoryBase = "$PSScriptRoot\release"
     $OutputDirectory = "$OutputDirectoryBase\$ModuleName"
+    $DocsDirectory = "$PSScriptRoot\docs\en-US"
 }
 
 Task -name 'Clean' {
@@ -61,7 +62,21 @@ Task -name 'BuildModuleFile' {
 
     # Load post import functions
 
-
 }
 
-Task -name 'Build' -depends 'BuildModuleManifest', 'BuildModuleFile'
+Task -name 'GenerateMarkdownHelp' {
+    Import-Module "$SourceDirectory\$ModuleName.psd1" -Force
+
+    $null = New-MarkdownHelp -Module $ModuleName -OutputFolder $DocsDirectory -ErrorAction SilentlyContinue
+    $null = Update-MarkdownHelp -Path $DocsDirectory
+
+    Remove-Module $ModuleName
+}
+
+Task -name 'BuildExternalHelp' -depends 'StageFiles' {
+    $null = New-ExternalHelp -Path $DocsDirectory -OutputPath "$OutputDirectory\en-US"
+}
+
+
+Task -name 'Build' -depends 'BuildModuleManifest', 'BuildModuleFile', 'BuildExternalHelp'
+
