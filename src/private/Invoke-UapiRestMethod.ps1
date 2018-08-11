@@ -2,7 +2,8 @@ function Invoke-UapiRestMethod {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
-        [Uri] $Uri,
+        [ValidateNotNullOrEmpty()]
+        [string] $Url,
 
         [Parameter()]
         [ValidateSet('Get', 'Post')]
@@ -27,7 +28,7 @@ function Invoke-UapiRestMethod {
 
         $requestParams = @{
             Method = $Method
-            Uri = $Uri
+            Uri = $Url
             Headers = $authorizationHeader
         }
 
