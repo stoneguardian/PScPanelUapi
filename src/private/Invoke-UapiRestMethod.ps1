@@ -1,7 +1,7 @@
 function Invoke-UapiRestMethod {
     [CmdletBinding()]
     param (
-        [Parameter()]
+        [Parameter(Mandatory, ValueFromPipeline)]
         [Uri] $Uri,
 
         [Parameter()]
