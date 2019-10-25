@@ -1,20 +1,27 @@
-function Get-Mailbox {
+function Get-Mailbox
+{
     [CmdletBinding()]
     param (
     )
     
-    begin {
+    begin
+    {
         $uapiModule = 'Email'
-        $uapiFunction = 'list_pops'
+        $uapiFunction = 'list_pops_with_disk'
+
+        $apiUrl = Get-UapiUrl -Module $uapiModule -Function $uapiFunction
     }
     
-    process {
-        Get-UapiUrl -Module $uapiModule -Function $uapiFunction |
-            Invoke-UapiRestMethod |
-            Where-Object { $_.login -ne 'Main Account' } |
-            Select-Object -ExpandProperty 'email'
+    process
+    {
+        $result = Invoke-UapiRestMethod -Url $apiUrl -Method 'Get'
+        foreach ($item in $result)
+        {
+            [Mailbox]::new($item) # Write-Output
+        }
     }
     
-    end {
+    end
+    {
     }
 }
