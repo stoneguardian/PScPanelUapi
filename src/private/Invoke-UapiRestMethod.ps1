@@ -1,4 +1,5 @@
-function Invoke-UapiRestMethod {
+function Invoke-UapiRestMethod
+{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -10,13 +11,15 @@ function Invoke-UapiRestMethod {
         [string] $Method = 'Get'
     )
     
-    begin {
+    begin
+    {
     }
     
-    process {
+    process
+    {
         $credential = Get-Connection | Select-Object -ExpandProperty Credential
 
-        if($null -eq $credential)
+        if ($null -eq $credential)
         {
             Write-Error "Current connection has not been set, please do so with 'Set-Connection' before trying again" -ErrorAction Stop
         }
@@ -27,14 +30,14 @@ function Invoke-UapiRestMethod {
         $authorizationHeader = @{ Authorization = "Basic $([System.Convert]::ToBase64String($combinedBytes))" } 
 
         $requestParams = @{
-            Method = $Method
-            Uri = $Url
+            Method  = $Method
+            Uri     = $Url
             Headers = $authorizationHeader
         }
 
         $result = Invoke-RestMethod @requestParams
 
-        if($null -eq $result.errors)
+        if ($null -eq $result.errors)
         {
             $result.data # Write-Output
         }
@@ -44,6 +47,7 @@ function Invoke-UapiRestMethod {
         }
     }
     
-    end {
+    end
+    {
     }
 }

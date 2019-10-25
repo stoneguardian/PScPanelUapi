@@ -1,17 +1,21 @@
 # Returns current connection
-function Get-Connection {
+function Get-Connection
+{
     [CmdletBinding()]
     param (
         
     )
     
-    begin {
+    begin
+    {
     }
     
-    process {
+    process
+    {
         [PSCustomObject]$Script:Connection # Write-Output
     }
     
-    end {
+    end
+    {
     }
 }
