@@ -7,7 +7,7 @@ Properties {
 }
 
 Task -name 'Clean' {
-    if(Test-Path $OutputDirectoryBase)
+    if (Test-Path $OutputDirectoryBase)
     {
         $null = Remove-Item $OutputDirectoryBase -Recurse -Force
     }
@@ -17,16 +17,17 @@ Task -name 'StageFiles' -depends 'Clean' {
     $null = New-Item $OutputDirectory -ItemType Directory -Force
 
     # Files to copy
+    Copy-Item -Path "$SourceDirectory\Configuration.psd1" -Destination "$OutputDirectory"
     Copy-Item -Path "$SourceDirectory\$ModuleName.psd1" -Destination "$OutputDirectory"
 }
 
-Task -name 'BuildModuleManifest' -depends 'StageFiles' {
+Task -name 'BuildModuleManifest' -depends 'StageFiles', 'BuildModuleFile' {
     $functionsToExport = (Get-ChildItem -Path "$SourceDirectory\public" -Filter '*.ps1' -File).BaseName
 
     Update-ModuleManifest -Path "$OutputDirectory\$ModuleName.psd1" -FunctionsToExport $functionsToExport
 }
 
-Task -name 'BuildModuleFile' {
+Task -name 'BuildModuleFile' -depends 'StageFiles' {
     $psm1File = "$OutputDirectory\$ModuleName.psm1"
 
     # Header
@@ -37,9 +38,14 @@ Task -name 'BuildModuleFile' {
     '#' | Out-File $psm1File -Append -Encoding utf8
 
     # Load classes
-    if(Test-Path "$SourceDirectory\classes")
+    if (Test-Path "$SourceDirectory\classes")
     {
-
+        '# Classes' | Out-File $psm1File -Append -Encoding utf8    
+        foreach ($file in (Get-ChildItem -Path "$SourceDirectory\classes" -Filter '*.ps1' -File))
+        {
+            Get-Content -Path $file.FullName -Encoding utf8 | Out-File $psm1File -Append -Encoding utf8
+            "`n" | Out-File $psm1File -Append -Encoding utf8            
+        }
     }
 
     # Load functions
@@ -48,14 +54,14 @@ Task -name 'BuildModuleFile' {
 
     '# Functions' | Out-File $psm1File -Append -Encoding utf8
 
-    foreach($file in @(@($privateFunctions) + @($publicFunctions)))
+    foreach ($file in @(@($privateFunctions) + @($publicFunctions)))
     {
         Get-Content -Path $file.FullName -Encoding utf8 | Out-File $psm1File -Append -Encoding utf8
         "`n" | Out-File $psm1File -Append -Encoding utf8
     }
 
     # Load argumentcompleters
-    if(Test-Path "$SourceDirectory\argumentcompleters")
+    if (Test-Path "$SourceDirectory\argumentcompleters")
     {
 
     }
